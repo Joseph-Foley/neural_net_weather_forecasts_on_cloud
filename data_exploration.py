@@ -7,8 +7,6 @@ I hope to pick four series to model on.
 # IMPORTS
 # =============================================================================
 import pandas as pd
-import numpy as np
-import datetime as dt
 import matplotlib.pyplot as plt
 from dataprep.eda import create_report
 
@@ -96,10 +94,10 @@ for col in df.columns:
 
 """
 Temperature behaving in accordance with seasons/time of year as expected.
-humidity is the inverse of temperature but more noisy.
+Humidity is the inverse of temperature but more noisy.
 Patterns in precipitation are not so easy to discern.
-windspeed is mostly noise centered around a mean of 13.
+Windspeed is mostly noise centered around a mean of 13.
 Strange jump in cloudcover at the end of 2020. Maybe they changed how it was measured? I wouldve liked to have modelled this but now im not so sure.
 
-the four variables that will be modelled are: temp, humidity, precip, windspeed
+The four variables that will be modelled are: temp, humidity, precip, windspeed
 """
