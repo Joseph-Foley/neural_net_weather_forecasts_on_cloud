@@ -23,10 +23,10 @@ with open('api_key.txt') as doc:
     api_key = doc.read()
 
 #Set other params
-location = 'London%2C%20ENG%2C%20GB'
-end_date = '2021-5-14'
-iterations = 4
-day_chunk = 200
+LOCATION = 'London%2C%20ENG%2C%20GB'
+END_DATE = '2019-3-05'
+ITERATIONS = 4
+DAY_CHUNK = 200
 
 #import existing data to append to
 try:
@@ -35,12 +35,12 @@ except:
     weather_data = pd.DataFrame()
 
 #get data (conform to api extraction limitations)
-for i in range(iterations):
-    end_date_chunk = dt.datetime.strptime(end_date,'%Y-%m-%d') - dt.timedelta(days= (i * day_chunk) + 1)
+for i in range(ITERATIONS):
+    end_date_chunk = dt.datetime.strptime(END_DATE,'%Y-%m-%d') - dt.timedelta(days= (i * DAY_CHUNK) + 1)
     end_date_chunk = dt.datetime.strftime(end_date_chunk,'%Y-%m-%d') 
     
     
-    start_date = dt.datetime.strptime(end_date,'%Y-%m-%d') - dt.timedelta(days=((i + 1) * day_chunk))
+    start_date = dt.datetime.strptime(END_DATE,'%Y-%m-%d') - dt.timedelta(days=((i + 1) * DAY_CHUNK))
     start_date = dt.datetime.strftime(start_date,'%Y-%m-%d') 
     
     #url
@@ -48,7 +48,7 @@ for i in range(iterations):
     ''.join(['https://weather.visualcrossing.com/VisualCrossingWebServices/',
              'rest/services/timeline/[LOCATION]/[START_DT]/[END_DT]?',
              'unitGroup=uk&key=[API_KEY]&include=obs'])\
-             .replace('[LOCATION]', location)\
+             .replace('[LOCATION]', LOCATION)\
              .replace('[START_DT]', start_date)\
              .replace('[END_DT]', end_date_chunk)\
              .replace('[API_KEY]', api_key)
