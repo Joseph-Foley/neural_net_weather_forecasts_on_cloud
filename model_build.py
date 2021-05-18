@@ -85,14 +85,14 @@ class BuildModel():
     length - number of steps in time sequence to feed the rnn
     layers_num - number of rnn layers in model (capped at 3)
     layers_type - select "LSTM" or "GRU"
-    units_rnn - number of units in rnn layers
-    units_dense - number of units in final dense (used for multi step preds)
+    units - number of units in rnn layers
+    num_step_preds - number of steps/days in time to predict
     dropout - dropout % to be applied to rnn units
     batch_size - number of samples to feed model at a time.
     patience - how many epochs to wait before stopping model after finding good score.
     """
     def __init__(self, length=10, layers_num=1, layers_type='LSTM',\
-                 units_rnn=50, units_dense=1, dropout=0.0, epochs=8,\
+                 units=50, num_step_preds=1, dropout=0.0, epochs=8,\
                  batch_size=1, patience=5):
         
         #assertions for input
@@ -104,10 +104,11 @@ class BuildModel():
         self.length = length
         self.layers_num = layers_num
         self.layers_type = layers_type
-        self.units_rnn = units_rnn
-        self.units_dense = units_dense
+        self.units = units
+        self.num_step_preds = num_step_preds
         self.dropout = dropout
         self.epochs = epochs
+        self.batch_size = batch_size
         n_features = 1
         
         #callbacks
@@ -121,28 +122,69 @@ class BuildModel():
         ##add extra layers as required (or not if layers_num = 1)
         for i in range(layers_num - 1):
             self.model.add(eval('{}(units={}, dropout={}, return_sequences=True)'\
-                .format(self.layers_type, self.units_rnn, self.dropout)))
+                .format(self.layers_type, self.units, self.dropout)))
                 
         ##closing rnn layer (do not return squences)
         self.model.add(eval('{}(units={}, dropout={})'\
-                .format(self.layers_type, self.units_rnn, self.dropout)))
+                .format(self.layers_type, self.units, self.dropout)))
             
         ##Dense output
-        self.model.add(Dense(units=self.units_dense))
+        self.model.add(Dense(units=self.num_step_preds))
                        
         #compile model
         self.model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    
+    def setupData(self, series, val_days=450):
+        """
+        splits data, scales data, creates generators for the model
+        """
+        #split data into train and validation
+        self.train = series.iloc[:-val_days]
+        self.validation = series.iloc[-val_days:]
         
-        #provide summary
-        #TODO remove ()
-        self.summary = self.model.summary()
+        #scale data for neural network suitability
+        self.scaler = MinMaxScaler()
+        self.scaler.fit(self.train.values.reshape(-1,1))
+        self.train_scaled = scaler.transform(self.train.values.reshape(-1,1))
         
-    def fitModel(self, generator, val_generator):
+        self.validation_scaled = \
+             scaler.transform(self.validation.values.reshape(-1,1))
+        
+        #create time series generators
+        self.generator = \
+             TimeseriesGenerator(data=self.train_scaled,\
+                                 targets=self.train_scaled,\
+                                 length=self.length,\
+                                 batch_size=self.batch_size)
+                 
+        self.val_generator = \
+             TimeseriesGenerator(data=self.validation_scaled,\
+                                 targets=self.validation_scaled,\
+                                 length=self.length,\
+                                 batch_size=self.batch_size)
+
+    def fitModel(self):
         """
         Fits the model on your generators for training and validation sets.
         EarlyStopping call back ends training if val_loss doesnt improve
         """
-        self.model.fit(generator, validation_data=val_generator,\
+        self.model.fit(self.generator, validation_data=self.val_generator,\
                        epochs=self.epochs, callbacks=self.callbacks)
             
-   
+    def predAhead(self, days, series=None):
+        """
+        Predicts a number of days ahead set by the user. Input your own
+        series or dont if you want to predict off of the validation set.
+        """
+        assert self.num_step_preds == 1,\
+            "sorry function not yet available for multi step models"
+            
+        if series == None:
+            series = self.validation
+            
+        series_scaled = \
+            scaler.transform(series.values.reshape(-1,1))
+            
+        FINISH IT LAD (SEE JOSE lecture)
+    
+        
