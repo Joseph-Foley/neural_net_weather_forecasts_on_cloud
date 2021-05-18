@@ -24,7 +24,7 @@ with open('api_key.txt') as doc:
 
 #Set other params
 LOCATION = 'London%2C%20ENG%2C%20GB'
-END_DATE = '2019-3-05'
+END_DATE = '2016-12-24'
 ITERATIONS = 4
 DAY_CHUNK = 200
 
