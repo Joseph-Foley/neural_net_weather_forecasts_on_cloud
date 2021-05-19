@@ -7,6 +7,7 @@ script used for building forecast model
 # =============================================================================
 import pandas as pd
 import numpy as np
+import datetime as dt
 
 from sklearn.preprocessing import StandardScaler, MinMaxScaler#, Normalizer
 
@@ -15,8 +16,6 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, LSTM, GRU, Dense, Dropout, LayerNormalization, Bidirectional #BatchNormalization - NO
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
-
-
 
 # =============================================================================
 # FUNCTIONS
@@ -33,44 +32,46 @@ df['datetime'] = pd.to_datetime(df['datetime'], format='%d/%m/%Y')
 df = df.set_index('datetime')
 
 temp = df['temp']
-
-#split data (one year for validation, one week for test)
-train = temp.iloc[:-450]
-validation = temp.iloc[-450:-7]
-test = temp.iloc[-7:]
-
-#scale data
-scaler = MinMaxScaler()
-scaler.fit(train.values.reshape(-1,1))
-train_scaled = scaler.transform(train.values.reshape(-1,1))
-validation_scaled = scaler.transform(validation.values.reshape(-1,1))
-test_scaled = scaler.transform(test.values.reshape(-1,1))
-
-#make model
-length = 30
-n_features = 1
-
-model = Sequential()
-model.add(LSTM(units=100, activation='tanh', input_shape=(length, n_features), dropout=0, recurrent_dropout=0))#, stateful=True, batch_input_shape=(1, 30, 1)))
-#model.add(Bidirectional(LSTM(units=100, activation='tanh', input_shape=(length, n_features), dropout=0, recurrent_dropout=0)))
-#model.add(LayerNormalization())
-model.add(Dense(1))
-
-#print(model.summary())
-
-#data generator 
-generator = TimeseriesGenerator(data=train_scaled, targets=train_scaled, length=length, batch_size=1)
-val_generator = TimeseriesGenerator(data=validation_scaled, targets=validation_scaled, length=length, batch_size=1)
-
-#callbacks
-early_stop = EarlyStopping(monitor='val_loss', patience=5)
-
-#compile and fit data
-model.compile(optimizer='adam', loss='mse', metrics=['mae'])
-model.fit(generator, validation_data=val_generator, epochs=8, callbacks=[early_stop])
-
-#evaluate
-model.evaluate(val_generator)
+# =============================================================================
+# 
+# #split data (one year for validation, one week for test)
+# train = temp.iloc[:-450]
+# validation = temp.iloc[-450:-7]
+# test = temp.iloc[-7:]
+# 
+# #scale data
+# scaler = MinMaxScaler()
+# scaler.fit(train.values.reshape(-1,1))
+# train_scaled = scaler.transform(train.values.reshape(-1,1))
+# validation_scaled = scaler.transform(validation.values.reshape(-1,1))
+# test_scaled = scaler.transform(test.values.reshape(-1,1))
+# 
+# #make model
+# length = 30
+# n_features = 1
+# 
+# model = Sequential()
+# model.add(LSTM(units=100, activation='tanh', input_shape=(length, n_features), dropout=0, recurrent_dropout=0))#, stateful=True, batch_input_shape=(1, 30, 1)))
+# #model.add(Bidirectional(LSTM(units=100, activation='tanh', input_shape=(length, n_features), dropout=0, recurrent_dropout=0)))
+# #model.add(LayerNormalization())
+# model.add(Dense(1))
+# 
+# #print(model.summary())
+# 
+# #data generator 
+# generator = TimeseriesGenerator(data=train_scaled, targets=train_scaled, length=length, batch_size=1)
+# val_generator = TimeseriesGenerator(data=validation_scaled, targets=validation_scaled, length=length, batch_size=1)
+# 
+# #callbacks
+# early_stop = EarlyStopping(monitor='val_loss', patience=5)
+# 
+# #compile and fit data
+# model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+# model.fit(generator, validation_data=val_generator, epochs=8, callbacks=[early_stop])
+# 
+# #evaluate
+# model.evaluate(val_generator)
+# =============================================================================
 
 #predict
 #model.predict(train_scaled[:7].reshape(-1,7,1))
@@ -109,7 +110,7 @@ class BuildModel():
         self.dropout = dropout
         self.epochs = epochs
         self.batch_size = batch_size
-        n_features = 1
+        self.n_features = 1
         
         #callbacks
         self.callbacks = [EarlyStopping(monitor='val_loss', patience=5)]
@@ -117,7 +118,7 @@ class BuildModel():
         #BUILD MODEL
         ##inputs
         self.model = Sequential()
-        self.model.add(InputLayer(input_shape=(self.length, n_features)))
+        self.model.add(InputLayer(input_shape=(self.length, self.n_features)))
         
         ##add extra layers as required (or not if layers_num = 1)
         for i in range(layers_num - 1):
@@ -145,10 +146,10 @@ class BuildModel():
         #scale data for neural network suitability
         self.scaler = MinMaxScaler()
         self.scaler.fit(self.train.values.reshape(-1,1))
-        self.train_scaled = scaler.transform(self.train.values.reshape(-1,1))
+        self.train_scaled = self.scaler.transform(self.train.values.reshape(-1,1))
         
         self.validation_scaled = \
-             scaler.transform(self.validation.values.reshape(-1,1))
+             self.scaler.transform(self.validation.values.reshape(-1,1))
         
         #create time series generators
         self.generator = \
@@ -177,14 +178,48 @@ class BuildModel():
         series or dont if you want to predict off of the validation set.
         """
         assert self.num_step_preds == 1,\
-            "sorry function not yet available for multi step models"
-            
+            "sorry, function not yet available for multi step models"
+        
+        #use end of the validation set to project forward if no series given
         if series == None:
             series = self.validation
-            
-        series_scaled = \
-            scaler.transform(series.values.reshape(-1,1))
-            
-        FINISH IT LAD (SEE JOSE lecture)
-    
         
+        #get end of the series to plug into the model
+        assert len(series) >= self.length,\
+            "series must be at least {} days".format(self.length)
+            
+        series_cut = series.iloc[-self.length:]
+        
+        #scale inputs to what model is expecting    
+        series_scaled = \
+            self.scaler.transform(series_cut.values.reshape(-1,1))
+            
+        #predict ahead by appending predictions and removing first values
+        pred_series = series_scaled.reshape(1, self.length, self.n_features)
+        predictions = []
+        
+        for i in range(days):
+            pred = self.model.predict(pred_series)
+            pred_series = np.append(pred_series[:,1:,:], [pred], axis=1)
+            predictions.append(pred)
+            
+        #inverse scale back to original units
+        predictions = np.array(predictions)
+        predictions = self.scaler.inverse_transform(\
+                           predictions.reshape(days, self.n_features))\
+                          .round(1)
+        
+        #convert to pandas series
+        predictions = pd.Series(predictions.reshape(days))
+        predictions.index = self.validation.index[-days:] +\
+                                 dt.timedelta(days=days)
+            
+        return predictions
+    
+    def plotPreds(self, predictions, test_series=None):
+        pass
+    
+test = BuildModel(units=10, epochs=2)
+test.setupData(temp)
+test.fitModel()   
+print(test.predAhead(10))
