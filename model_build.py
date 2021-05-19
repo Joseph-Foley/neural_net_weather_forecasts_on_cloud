@@ -8,6 +8,7 @@ script used for building forecast model
 import pandas as pd
 import numpy as np
 import datetime as dt
+import time
 
 from sklearn.preprocessing import StandardScaler, MinMaxScaler#, Normalizer
 
@@ -31,7 +32,8 @@ df = pd.read_csv('Data/weather_data.csv')
 df['datetime'] = pd.to_datetime(df['datetime'], format='%d/%m/%Y')
 df = df.set_index('datetime')
 
-temp = df['temp']
+temp = df['temp'].iloc[:-7]
+test_data = df['temp'].iloc[-7:]
 # =============================================================================
 # 
 # #split data (one year for validation, one week for test)
@@ -146,7 +148,9 @@ class BuildModel():
         #scale data for neural network suitability
         self.scaler = MinMaxScaler()
         self.scaler.fit(self.train.values.reshape(-1,1))
-        self.train_scaled = self.scaler.transform(self.train.values.reshape(-1,1))
+        
+        self.train_scaled = \
+            self.scaler.transform(self.train.values.reshape(-1,1))
         
         self.validation_scaled = \
              self.scaler.transform(self.validation.values.reshape(-1,1))
@@ -167,10 +171,13 @@ class BuildModel():
     def fitModel(self):
         """
         Fits the model on your generators for training and validation sets.
-        EarlyStopping call back ends training if val_loss doesnt improve
+        EarlyStopping call back ends training if val_loss doesnt improve.
+        Record epoch metrics in a DataFrame.
         """
         self.model.fit(self.generator, validation_data=self.val_generator,\
                        epochs=self.epochs, callbacks=self.callbacks)
+            
+        self.history = pd.DataFrame(self.model.history.history)
             
     def predAhead(self, days, series=None):
         """
@@ -218,8 +225,83 @@ class BuildModel():
     
     def plotPreds(self, predictions, test_series=None):
         pass
+# =============================================================================
+#     
+# test = BuildModel(units=10, epochs=2)
+# test.setupData(temp)
+# test.fitModel()   
+# 
+# print(test.model.history.history)
+# predictions = test.predAhead(20)
+# 
+# =============================================================================
+#grid search
+#grid table and results table
+length = [1,5]
+layers_num = [1,2,3]
+layers_type = ['GRU', 'LSTM']
+units = [10, 20] 
+dropout = [0.0, 0.2]
+
+
+
+def gridTableGen(length: list, layers_num: list, layers_type: list,\
+               units: list,  dropout: list):
+    """returns table of every combo for the hyperparameters"""
     
-test = BuildModel(units=10, epochs=2)
-test.setupData(temp)
-test.fitModel()   
-print(test.predAhead(10))
+    #get cross joins to acquire every combination
+    grid_table = pd.DataFrame(length).merge(\
+                 pd.DataFrame(layers_num), how='cross').merge(\
+                 pd.DataFrame(layers_type), how='cross').merge(\
+                 pd.DataFrame(units), how='cross').merge(\
+                 pd.DataFrame(dropout), how='cross')
+                                                     
+    grid_table.columns = \
+        ['length', 'layers_num', 'layers_type', 'units', 'dropout']
+        
+    return grid_table
+
+grid_table = gridTableGen(length, layers_num, layers_type, units, dropout)
+
+def gridSearch(grid_table, data):
+    """searches through hyperparameters in grid_table to determine optimium model"""
+    #record time for file_name
+    time_now = str(round(time.time()))
+        
+    #make results table to append results onto
+    results_cols =\
+        pd.DataFrame(columns=['loss', 'mae', 'val_loss', 'val_mae', 'epochs'])
+        
+    results_table = pd.concat([grid_table, results_cols], axis=1)
+    
+    #iterate through the table and fit the models
+    for i, row in grid_table.iterrows():
+        #input hyperparameters
+        print('\nNow Training \n{}'.format(row.to_dict()))
+        grid_mod = \
+            BuildModel(length=row['length'], layers_num=row['layers_num'],\
+                       layers_type=row['layers_type'],units=row['units'],\
+                       num_step_preds=1, dropout=row['dropout'], epochs=2,\
+                       batch_size=10, patience=5)
+        
+        #setup data and train the model
+        grid_mod.setupData(data)
+        grid_mod.fitModel()
+        
+        #find best epoch (val_mae)
+        hist = grid_mod.history
+        best_epoch = hist[hist['val_mae'] == hist['val_mae'].min()]\
+                     .iloc[:1]
+        
+        #update results table
+        results_table.loc[i, ['loss', 'mae', 'val_loss', 'val_mae']] =\
+            best_epoch.values[0].round(4)
+        
+        results_table.loc[i, 'epochs'] = best_epoch.index[0]
+        
+        #save to drive
+        results_table.to_csv('results_table_' + time_now + '.csv', index=False)
+        
+    return results_table
+
+results = gridSearch(grid_table, temp)
