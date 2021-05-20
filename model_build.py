@@ -8,6 +8,7 @@ script used for building forecast model
 import pandas as pd
 import numpy as np
 import datetime as dt
+import matplotlib.pyplot as plt
 import time
 
 from sklearn.preprocessing import StandardScaler, MinMaxScaler#, Normalizer
@@ -223,26 +224,24 @@ class BuildModel():
             
         return predictions
     
-    def plotPreds(self, predictions, test_series=None):
+    def plotPreds(self, predictions, test_series=None, run_up=None, ylabel='units'):
         pass
-# =============================================================================
-#     
-# test = BuildModel(units=10, epochs=2)
-# test.setupData(temp)
-# test.fitModel()   
-# 
-# print(test.model.history.history)
-# predictions = test.predAhead(20)
-# 
-# =============================================================================
-#grid search
-#grid table and results table
-length = [1,5]
-layers_num = [1,2,3]
-layers_type = ['GRU', 'LSTM']
-units = [10, 20] 
-dropout = [0.0, 0.2]
+    
+test = BuildModel(units=10, epochs=2)
+test.setupData(temp)
+test.fitModel()   
 
+print(test.model.history.history)
+predictions = test.predAhead(7)
+
+#plotting
+plt.figure(figsize=(12, 8))
+plt.ylabel('temp')
+plt.xlabel('datetime')
+plt.plot(test_data)
+plt.scatter(predictions.index, predictions, edgecolors='k', label='predictions', c='#2ca02c', s=64)
+plt.scatter(test_data.index, test_data, marker='X', edgecolors='k', label='test_data',
+                  c='#ff7f0e', s=200)
 
 
 def gridTableGen(length: list, layers_num: list, layers_type: list,\
@@ -261,7 +260,7 @@ def gridTableGen(length: list, layers_num: list, layers_type: list,\
         
     return grid_table
 
-grid_table = gridTableGen(length, layers_num, layers_type, units, dropout)
+
 
 def gridSearch(grid_table, data):
     """searches through hyperparameters in grid_table to determine optimium model"""
@@ -304,4 +303,16 @@ def gridSearch(grid_table, data):
         
     return results_table
 
-results = gridSearch(grid_table, temp)
+# =============================================================================
+# #grid search
+# #grid table and results table
+# length = [1,5]
+# layers_num = [1,2,3]
+# layers_type = ['GRU', 'LSTM']
+# units = [10, 20] 
+# dropout = [0.0, 0.2]
+# 
+# grid_table = gridTableGen(length, layers_num, layers_type, units, dropout)
+# results = gridSearch(grid_table, temp)
+# 
+# =============================================================================
