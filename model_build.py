@@ -115,7 +115,7 @@ class BuildModel():
         self.n_features = 1
         
         #callbacks
-        self.callbacks = [EarlyStopping(monitor='val_loss', patience=5)]
+        self.callbacks = [EarlyStopping(monitor='val_loss', patience=patience)]
         
         #BUILD MODEL
         ##inputs
