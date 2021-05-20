@@ -225,23 +225,58 @@ class BuildModel():
         return predictions
     
     def plotPreds(self, predictions, test_series=None, run_up=None, ylabel='units'):
-        pass
+        """
+        plot the predictions of the model. plot them against another series
+        (test series). plot with with a run up leading to the pred period
+        (validation set).
+        """
+        #set up figure
+        plt.figure(figsize=(10,6))
+        plt.ylabel(ylabel)
+        plt.xlabel('datetime')
+        
+        #plot lines
+        if run_up is None:
+            run_up = self.validation[-7:]
+            
+        if test_series is not None:
+            plt.plot(pd.concat([run_up, test_series[:1]]))
+            plt.plot(test_series)
+            
+        else:
+            plt.plot(run_up)
+            
+        #plot points
+        plt.scatter(predictions.index, predictions, edgecolors='k',\
+                    label='predictions', c='#2ca02c', s=64)
+            
+        if test_series is not None:
+            plt.scatter(test_data.index, test_data, marker='X',\
+                        edgecolors='k', label='test_data', c='#ff7f0e', s=200)
+                
+        plt.legend()
+
     
-test = BuildModel(units=10, epochs=2)
+test = BuildModel(length=1, units=10, epochs=2)
 test.setupData(temp)
 test.fitModel()   
 
-print(test.model.history.history)
+#print(test.model.history.history)
 predictions = test.predAhead(7)
+test.plotPreds(predictions, test_data, ylabel='tempC')
 
-#plotting
-plt.figure(figsize=(12, 8))
-plt.ylabel('temp')
-plt.xlabel('datetime')
-plt.plot(test_data)
-plt.scatter(predictions.index, predictions, edgecolors='k', label='predictions', c='#2ca02c', s=64)
-plt.scatter(test_data.index, test_data, marker='X', edgecolors='k', label='test_data',
-                  c='#ff7f0e', s=200)
+# =============================================================================
+# #plotting
+# plt.figure(figsize=(10,6))
+# plt.ylabel('temp')
+# plt.xlabel('datetime')
+# plt.plot(pd.concat([temp[-7:], test_data[:1]]))
+# plt.plot(test_data)
+# plt.scatter(predictions.index, predictions, edgecolors='k', label='predictions', c='#2ca02c', s=64)
+# plt.scatter(test_data.index, test_data, marker='X', edgecolors='k', label='test_data',
+#                   c='#ff7f0e', s=200)
+# plt.legend()
+# =============================================================================
 
 
 def gridTableGen(length: list, layers_num: list, layers_type: list,\
