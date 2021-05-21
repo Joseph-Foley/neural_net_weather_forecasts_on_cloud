@@ -71,8 +71,10 @@ class BuildModel():
                 .format(self.layers_type, self.units, self.dropout)))
                 
         ##closing rnn layer (do not return squences)
-        self.model.add(Bidirectional(eval('{}(units={}, dropout={})'\
-                .format(self.layers_type, self.units, self.dropout))))
+        self.model.add(eval('{}(units={}, dropout={})'\
+                .format(self.layers_type, self.units, self.dropout)))
+            
+        self.model.add(LayerNormalization())
             
         ##Dense output
         self.model.add(Dense(units=self.num_step_preds))
