@@ -48,13 +48,6 @@ preds = jank.predict(model.val_generator)
 preds = pd.Series(model.scaler.inverse_transform(preds)[:,0],
                   index = model.validation[model.length:].index)
 
-# =============================================================================
-# ROUND2
-# =============================================================================
-preds = pd.Series(model.scaler2.inverse_transform(preds).round(1)[:,0],
-                  index = model.validation[model.length:].index)
-
-
 #mae in temp
 score = (preds - model.validation[model.length:]).abs().mean()
 

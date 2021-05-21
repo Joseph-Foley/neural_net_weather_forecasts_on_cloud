@@ -71,8 +71,8 @@ class BuildModel():
                 .format(self.layers_type, self.units, self.dropout)))
                 
         ##closing rnn layer (do not return squences)
-        self.model.add(eval('{}(units={}, dropout={})'\
-                .format(self.layers_type, self.units, self.dropout)))
+        self.model.add(Bidirectional(eval('{}(units={}, dropout={})'\
+                .format(self.layers_type, self.units, self.dropout))))
             
         ##Dense output
         self.model.add(Dense(units=self.num_step_preds))
@@ -91,7 +91,7 @@ class BuildModel():
         self.validation = series.iloc[-val_days:]
         
         #scale data for neural network suitability
-        self.scaler = StandardScaler()
+        self.scaler = MinMaxScaler()
         self.scaler.fit(self.train.values.reshape(-1,1))
         
         self.train_scaled = \
@@ -99,22 +99,7 @@ class BuildModel():
         
         self.validation_scaled = \
              self.scaler.transform(self.validation.values.reshape(-1,1))
-             
-# =============================================================================
-#  ROUND 2       
-# =============================================================================
-        #scale data for neural network suitability
-        self.scaler2 = MinMaxScaler()
-        self.scaler2.fit(self.train.values.reshape(-1,1))
-        
-        self.train_scaled = \
-            self.scaler2.transform(self.train_scaled)
-        
-        self.validation_scaled = \
-             self.scaler2.transform(self.validation_scaled)
-# =============================================================================
-#         
-# =============================================================================
+
         #create time series generators
         self.generator = \
              TimeseriesGenerator(data=self.train_scaled,\
