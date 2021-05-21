@@ -74,14 +74,13 @@ test_data = df['temp'].iloc[-7:]
 # 
 # #evaluate
 # model.evaluate(val_generator)
+# 
 # =============================================================================
-
 #predict
 #model.predict(train_scaled[:7].reshape(-1,7,1))
 #model.predict(train_scaled[:11].reshape(-1,11,1))
 
 #model class for training
-#TODO assert length is not > than validation gen
 class BuildModel():
     """
     Build a model. Arguments allow one to customise the hyper parameters
@@ -94,8 +93,9 @@ class BuildModel():
     dropout - dropout % to be applied to rnn units
     batch_size - number of samples to feed model at a time.
     patience - how many epochs to wait before stopping model after finding good score.
+    model_name - file name of model we save. must end in ".h5" eg 'temp_model.h5'
     """
-    def __init__(self, length=10, layers_num=1, layers_type='LSTM',\
+    def __init__(self, model_name, length=10, layers_num=1, layers_type='LSTM',\
                  units=50, num_step_preds=1, dropout=0.0, epochs=8,\
                  batch_size=1, patience=5):
         
@@ -103,6 +103,7 @@ class BuildModel():
         assert 0 < layers_num < 4, "1 <= layers_num <= 3"
         assert layers_type in ['LSTM', 'GRU'], "layers_type is LSTM or GRU"
         assert 0 <= dropout < 1, "dropout must be float < 1"
+        assert model_name[-3:] == '.h5', "End model_name with '.h5'"
         
         #initialise
         self.length = length
@@ -113,10 +114,13 @@ class BuildModel():
         self.dropout = dropout
         self.epochs = epochs
         self.batch_size = batch_size
+        self.model_name = model_name
         self.n_features = 1
         
         #callbacks
-        self.callbacks = [EarlyStopping(monitor='val_loss', patience=patience)]
+        self.callbacks =[EarlyStopping(monitor='val_loss', patience=patience),\
+                         ModelCheckpoint(self.model_name, monitor='val_loss',\
+                                         save_best_only=True)]
         
         #BUILD MODEL
         ##inputs
@@ -142,6 +146,8 @@ class BuildModel():
         """
         splits data, scales data, creates generators for the model
         """
+        assert val_days > self.length , "val_days must exceed length"
+        
         #split data into train and validation
         self.train = series.iloc[:-val_days]
         self.validation = series.iloc[-val_days:]
@@ -178,6 +184,13 @@ class BuildModel():
         self.model.fit(self.generator, validation_data=self.val_generator,\
                        epochs=self.epochs, callbacks=self.callbacks)
             
+        self.history = pd.DataFrame(self.model.history.history)
+        
+    def loadModel(self):
+        """
+        Load a model instead of fitting a new one (uses model_name)
+        """
+        self.model = tf.keras.models.load_model(self.model_name)
         self.history = pd.DataFrame(self.model.history.history)
             
     def predAhead(self, days, series=None):
@@ -224,7 +237,8 @@ class BuildModel():
             
         return predictions
     
-    def plotPreds(self, predictions, test_series=None, run_up=None, ylabel='units'):
+    def plotPreds(self, predictions, test_series=None, run_up=None,\
+                  ylabel='units'):
         """
         plot the predictions of the model. plot them against another series
         (test series). plot with with a run up leading to the pred period
@@ -251,20 +265,22 @@ class BuildModel():
                     label='predictions', c='#2ca02c', s=64)
             
         if test_series is not None:
-            plt.scatter(test_data.index, test_data, marker='X',\
+            plt.scatter(test_series.index, test_series, marker='X',\
                         edgecolors='k', label='test_data', c='#ff7f0e', s=200)
                 
         plt.legend()
 
     
-test = BuildModel(length=1, units=10, epochs=2)
-test.setupData(temp)
-test.fitModel()   
-
-#print(test.model.history.history)
-predictions = test.predAhead(7)
-test.plotPreds(predictions, test_data, ylabel='tempC')
-
+# =============================================================================
+# test = BuildModel(model_name='test.h5', length=1, units=10, epochs=2)
+# test.setupData(temp)
+# test.fitModel()
+# 
+# #print(test.model.history.history)
+# predictions = test.predAhead(7)
+# test.plotPreds(predictions, test_data, ylabel='tempC')
+# 
+# =============================================================================
 # =============================================================================
 # #plotting
 # plt.figure(figsize=(10,6))
@@ -311,7 +327,7 @@ def gridSearch(grid_table, data):
     #iterate through the table and fit the models
     for i, row in grid_table.iterrows():
         #input hyperparameters
-        print('\nNow Training \n{}'.format(row.to_dict()))
+        print('\nNow Training ({})\n{}'.format(i, row.to_dict()))
         grid_mod = \
             BuildModel(length=row['length'], layers_num=row['layers_num'],\
                        layers_type=row['layers_type'],units=row['units'],\
