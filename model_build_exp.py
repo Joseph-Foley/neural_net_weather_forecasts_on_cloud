@@ -19,6 +19,9 @@ from tensorflow.keras.layers import InputLayer, LSTM, GRU, Dense, Dropout, Layer
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
 
+from scipy.ndimage import gaussian_filter1d
+from scipy.signal import medfilt
+
 class BuildModel():
     """
     Build a model. Arguments allow one to customise the hyper parameters
@@ -86,30 +89,49 @@ class BuildModel():
         """
         assert val_days > self.length , "val_days must exceed lenght"
         
+# =============================================================================
+#         #split data into train and validation
+#         self.train = series.iloc[:-val_days]
+#         self.validation = series.iloc[-val_days:]
+#         
+#         #scale data for neural network suitability
+#         self.scaler = MinMaxScaler()
+#         self.scaler.fit(self.train.values.reshape(-1,1))
+#         
+#         self.train_scaled = \
+#             self.scaler.transform(self.train.values.reshape(-1,1))
+#         
+#         self.validation_scaled = \
+#              self.scaler.transform(self.validation.values.reshape(-1,1))
+# 
+#         #create time series generators
+#         self.generator = \
+#              TimeseriesGenerator(data=self.train_scaled,\
+#                                  targets=self.train_scaled,\
+#                                  length=self.length,\
+#                                  batch_size=self.batch_size)
+#                  
+#         self.val_generator = \
+#              TimeseriesGenerator(data=self.validation_scaled,\
+#                                  targets=self.validation_scaled,\
+#                                  length=self.length,\
+#                                  batch_size=self.batch_size)
+#           
+# =============================================================================
         #split data into train and validation
-        self.train = series.iloc[:-val_days]
-        self.validation = series.iloc[-val_days:]
-        
-        #scale data for neural network suitability
-        self.scaler = MinMaxScaler()
-        self.scaler.fit(self.train.values.reshape(-1,1))
-        
-        self.train_scaled = \
-            self.scaler.transform(self.train.values.reshape(-1,1))
-        
-        self.validation_scaled = \
-             self.scaler.transform(self.validation.values.reshape(-1,1))
-
-        #create time series generators
+        self.train = series.iloc[:-val_days].values.reshape(-1,1)
+        self.validation = series.iloc[-val_days:].values.reshape(-1,1)
+               
+                #create time series generators
         self.generator = \
-             TimeseriesGenerator(data=self.train_scaled,\
-                                 targets=self.train_scaled,\
+             TimeseriesGenerator(data=self.train,\
+                                 targets=self.train,\
                                  length=self.length,\
                                  batch_size=self.batch_size)
                  
         self.val_generator = \
-             TimeseriesGenerator(data=self.validation_scaled,\
-                                 targets=self.validation_scaled,\
+             TimeseriesGenerator(data=self.validation,\
+                                 targets=self.validation,\
                                  length=self.length,\
                                  batch_size=self.batch_size)
 
