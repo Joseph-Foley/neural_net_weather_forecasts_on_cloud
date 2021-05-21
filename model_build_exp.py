@@ -91,7 +91,7 @@ class BuildModel():
         self.validation = series.iloc[-val_days:]
         
         #scale data for neural network suitability
-        self.scaler = MinMaxScaler()
+        self.scaler = StandardScaler()
         self.scaler.fit(self.train.values.reshape(-1,1))
         
         self.train_scaled = \
