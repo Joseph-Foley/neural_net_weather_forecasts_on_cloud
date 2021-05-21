@@ -99,7 +99,22 @@ class BuildModel():
         
         self.validation_scaled = \
              self.scaler.transform(self.validation.values.reshape(-1,1))
+             
+# =============================================================================
+#  ROUND 2       
+# =============================================================================
+        #scale data for neural network suitability
+        self.scaler2 = MinMaxScaler()
+        self.scaler2.fit(self.train.values.reshape(-1,1))
         
+        self.train_scaled = \
+            self.scaler2.transform(self.train_scaled)
+        
+        self.validation_scaled = \
+             self.scaler2.transform(self.validation_scaled)
+# =============================================================================
+#         
+# =============================================================================
         #create time series generators
         self.generator = \
              TimeseriesGenerator(data=self.train_scaled,\
