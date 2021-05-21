@@ -129,7 +129,6 @@ class BuildModel():
         Load a model instead of fitting a new one (uses model_name)
         """
         self.model = tf.keras.models.load_model(self.model_name)
-        self.history = pd.DataFrame(self.model.history.history)
             
     def predAhead(self, days, series=None):
         """
