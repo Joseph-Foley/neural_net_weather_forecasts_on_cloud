@@ -48,7 +48,7 @@ jank = tf.keras.models.load_model(model.model_name)
 preds = jank.predict(model.val_generator)#smooth values
 
 #inverse transform
-preds = pd.Series(model.scaler.inverse_transform(preds)[:,0],
+preds = pd.Series(preds[:,0],
                   index = model.validation[model.length:].index)
 
 #mae in temp
