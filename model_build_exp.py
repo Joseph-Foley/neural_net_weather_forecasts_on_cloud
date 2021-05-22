@@ -89,11 +89,47 @@ class BuildModel():
         """
         assert val_days > self.length , "val_days must exceed lenght"
         
+        #split data into train and validation
+        self.train = series.iloc[:-val_days]
+        self.validation = series.iloc[-val_days:]
+        
 # =============================================================================
-#         #split data into train and validation
-#         self.train = series.iloc[:-val_days]
-#         self.validation = series.iloc[-val_days:]
-#         
+#       APPLY Smoothing filters  
+# =============================================================================
+        self.train_smooth = medfilt(self.train,7)
+        self.train_smooth = gaussian_filter1d(self.train_smooth, 1.1)
+        
+        self.validation_smooth = medfilt(self.validation,7)
+        self.validation_smooth = gaussian_filter1d(self.validation_smooth, 1.1)
+
+
+# =============================================================================
+#       SCALE AND GEN THAT
+# =============================================================================
+        #scale data for neural network suitability
+        self.scaler = MinMaxScaler()
+        self.scaler.fit(self.train_smooth.reshape(-1,1))
+        
+        self.train_scaled = \
+            self.scaler.transform(self.train_smooth.reshape(-1,1))
+        
+        self.validation_scaled = \
+             self.scaler.transform(self.validation_smooth.reshape(-1,1))
+
+        #create time series generators
+        self.generator = \
+             TimeseriesGenerator(data=self.train_scaled,\
+                                 targets=self.train_scaled,\
+                                 length=self.length,\
+                                 batch_size=self.batch_size)
+                 
+        self.val_generator = \
+             TimeseriesGenerator(data=self.validation_scaled,\
+                                 targets=self.validation_scaled,\
+                                 length=self.length,\
+                                 batch_size=self.batch_size)
+                 
+# =============================================================================
 #         #scale data for neural network suitability
 #         self.scaler = MinMaxScaler()
 #         self.scaler.fit(self.train.values.reshape(-1,1))
@@ -116,24 +152,8 @@ class BuildModel():
 #                                  targets=self.validation_scaled,\
 #                                  length=self.length,\
 #                                  batch_size=self.batch_size)
-#           
 # =============================================================================
-        #split data into train and validation
-        self.train = series.iloc[:-val_days].values.reshape(-1,1)
-        self.validation = series.iloc[-val_days:].values.reshape(-1,1)
-               
-                #create time series generators
-        self.generator = \
-             TimeseriesGenerator(data=self.train,\
-                                 targets=self.train,\
-                                 length=self.length,\
-                                 batch_size=self.batch_size)
-                 
-        self.val_generator = \
-             TimeseriesGenerator(data=self.validation,\
-                                 targets=self.validation,\
-                                 length=self.length,\
-                                 batch_size=self.batch_size)
+          
 
     def fitModel(self):
         """

@@ -18,6 +18,9 @@ from tensorflow.keras.layers import InputLayer, LSTM, GRU, Dense, Dropout, Layer
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
 
+from scipy.ndimage import gaussian_filter1d
+from scipy.signal import medfilt
+
 from model_build_exp import BuildModel
 
 model_name = 'temp_model.h5'
@@ -42,14 +45,14 @@ model.fitModel()
 
 #get preds
 jank = tf.keras.models.load_model(model.model_name)
-preds = jank.predict(model.val_generator)
+preds = jank.predict(model.val_generator)#smooth values
 
 #inverse transform
 preds = pd.Series(model.scaler.inverse_transform(preds)[:,0],
                   index = model.validation[model.length:].index)
 
 #mae in temp
-score = (preds - model.validation[model.length:]).abs().mean()
+score = (preds - model.validation[model.length:]).abs().mean()#real values
 
 
 #score
