@@ -115,6 +115,15 @@ class BuildModel():
         
         self.validation_scaled = \
              self.scaler.transform(self.validation_smooth.reshape(-1,1))
+         
+# =============================================================================
+#              NO SCALE
+# =============================================================================
+        self.train_scaled = \
+            self.train_smooth.reshape(-1,1)
+        
+        self.validation_scaled = \
+             self.validation_smooth.reshape(-1,1)
 
         #create time series generators
         self.generator = \
