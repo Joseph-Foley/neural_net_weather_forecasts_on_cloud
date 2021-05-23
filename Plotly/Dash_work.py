@@ -64,20 +64,57 @@ app.layout = html.Div(children=[
     ),
 
     html.Div(
-        children='Dash: A web application framework for Python.',
-        style={
-            'textAlign': 'center',
-            'color': colors['text']
-        }
-    ),
+            dcc.Graph(
+                    id='example-graph',
+                    figure={
+                            'data': data,
+                            'layout': layout
+                             }
+        
+                        ), 
+            style={'backgroundColor': colors['background'],
+               'width':'50%','display':'inline-block'}
+            ),
+    
+    html.Div(
+            dcc.Graph(
+                    id='example-graph2',
+                    figure={
+                            'data': data,
+                            'layout': layout
+                             }
+        
+                        ), 
+            style={'backgroundColor': colors['background'],
+               'width':'50%','display':'inline-block'}
+            ),
 
-    dcc.Graph(
-        id='example-graph',
-        figure={
-            'data': data,
-            'layout': layout
-        }
-    )],
+    html.Div(
+            dcc.Graph(
+                    id='example-graph3',
+                    figure={
+                            'data': data,
+                            'layout': layout
+                             }
+        
+                        ), 
+            style={'backgroundColor': colors['background'],
+               'width':'50%','display':'inline-block'}
+            ),
+    
+    html.Div(
+            dcc.Graph(
+                    id='example-graph4',
+                    figure={
+                            'data': data,
+                            'layout': layout
+                             }
+        
+                        ), 
+            style={'backgroundColor': colors['background'],
+               'width':'50%','display':'inline-block'}
+            )]
+,
     style={'backgroundColor': colors['background']}
 )
 
