@@ -22,6 +22,10 @@ from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
 
 from scipy.ndimage import gaussian_filter1d
 
+# =============================================================================
+# CLASSES & FUNCTIONS
+# =============================================================================
+
 class BuildModel():
     """
     Build a model. Arguments allow one to customise the hyper parameters
@@ -280,6 +284,10 @@ def gridSearch(grid_table, data):
         results_table.to_csv('results_table_' + time_now + '.csv', index=False)
         
     return results_table
+
+# =============================================================================
+# EXECUTE
+# =============================================================================
 
 if __name__ =='__main__':
 #grid search
