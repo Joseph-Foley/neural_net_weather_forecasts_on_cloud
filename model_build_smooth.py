@@ -296,6 +296,9 @@ def fastSearch(data: pd.Series, length: list, layers_num: list,\
     Its recommended that you pass in the resulting dictionary into this 
     function a second time.
     """
+    #record time for file_name
+    time_now = str(round(time.time()))
+    
     #set initial values if no specified parameters given.
     if best_dict is None:
         best_dict = {}
@@ -347,6 +350,7 @@ def fastSearch(data: pd.Series, length: list, layers_num: list,\
             #append score
             scores.append(val_mae_og)
             records = records.append(record)
+            records.to_csv('records_' + time_now + '.csv', index=False)
             
         #get param value that performed the best
         best_score = min(scores)
@@ -354,12 +358,9 @@ def fastSearch(data: pd.Series, length: list, layers_num: list,\
         
     return records, best_dict
     
-
-
 # =============================================================================
 # EXECUTE
 # =============================================================================
-
 if __name__ =='__main__':
 #grid search
 #grid table and results table
