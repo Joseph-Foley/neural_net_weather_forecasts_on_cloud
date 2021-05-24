@@ -26,8 +26,8 @@ from model_build_exp import BuildModel
 model_name = 'temp_model.h5'
 
 #input hyper parameters of best model
-model = BuildModel(model_name, length=90, layers_num=1, layers_type='GRU',
-                   units=160, dropout=0.0, batch_size=10, patience=20, epochs=250)
+model = BuildModel(model_name, length=30, layers_num=1, layers_type='GRU',
+                   units=80, dropout=0.0, batch_size=10, patience=20, epochs=250)
 
 #get data
 df = pd.read_csv('Data/weather_data.csv')

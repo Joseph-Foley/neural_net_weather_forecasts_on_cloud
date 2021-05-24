@@ -98,11 +98,11 @@ class BuildModel():
 # =============================================================================
         self.train_smooth = self.train
         #self.train_smooth = medfilt(self.train,7)
-        self.train_smooth = gaussian_filter1d(self.train_smooth, 1.1)
+        self.train_smooth = gaussian_filter1d(self.train_smooth, 0.8)
         
         self.validation_smooth = self.validation
         #self.validation_smooth = medfilt(self.validation,7)
-        self.validation_smooth = gaussian_filter1d(self.validation_smooth, 1.1)
+        self.validation_smooth = gaussian_filter1d(self.validation_smooth, 0.8)
 
 # =============================================================================
 #       SCALE AND GEN THAT
