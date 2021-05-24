@@ -251,7 +251,7 @@ def gridSearch(grid_table, data):
         grid_mod = \
             BuildModel(model_name='temp_model.h5', length=row['length'],\
                        layers_num=row['layers_num'], \
-                       layers_type=row['layers_type'],units=row['units'],\
+                       layers_type=row['layers_type'], units=row['units'],\
                        g_filt=row['g_filt'], num_step_preds=1,\
                        epochs=2, batch_size=10, patience=5)
         
@@ -264,7 +264,7 @@ def gridSearch(grid_table, data):
         best_epoch = hist[hist['val_mae'] == hist['val_mae'].min()]\
                      .iloc[:1]
                      
-        #calculate val_mae in unsmoothed orginal units
+        #calculate val_mae in unsmoothed original units
         best_model = tf.keras.models.load_model(grid_mod.model_name)
         preds = best_model.predict(grid_mod.val_generator)
         preds = pd.Series(preds[:,0],\
@@ -285,6 +285,77 @@ def gridSearch(grid_table, data):
         
     return results_table
 
+def fastSearch(data: pd.Series, length: list, layers_num: list,\
+               layers_type: list, units: list, g_filt: list, model_name: str,\
+               best_dict=None):
+    """
+    First it will set all hyperparameters to their first value in the lists we
+    pass in.
+    Then list by list it will train the model, keeping the best performing
+    element in that list.
+    Its recommended that you pass in the resulting dictionary into this 
+    function a second time.
+    """
+    #set initial values if no specified parameters given.
+    if best_dict is None:
+        best_dict = {}
+        
+        best_dict['length'] = [length[0], length]
+        best_dict['layers_num'] = [layers_num[0], layers_num]
+        best_dict['layers_type'] = [layers_type[0], layers_type]
+        best_dict['units'] = [units[0], units]
+        best_dict['g_filt'] = [g_filt[0], g_filt]
+    
+    records = pd.DataFrame()
+    
+    #go through each hyperparameter
+    for key in best_dict.keys():
+        if len(best_dict[key][1]) == 0:
+            continue
+        
+        scores = []
+        
+        #go through each value
+        for item in best_dict[key][1]:
+            best_dict[key][0] = item
+            
+            model = \
+                BuildModel(model_name=model_name,\
+                           length=best_dict['length'][0],\
+                           layers_num=best_dict['layers_num'][0], \
+                           layers_type=best_dict['layers_type'][0],\
+                           units=best_dict['units'][0],\
+                           g_filt=best_dict['g_filt'][0], num_step_preds=1,\
+                           epochs=2, batch_size=10, patience=5)
+                    
+            #setup data and train the model
+            model.setupData(data)
+            model.fitModel()
+                         
+            #calculate val_mae in unsmoothed original units
+            best_model = tf.keras.models.load_model(model_name)
+            preds = best_model.predict(model.val_generator)
+            preds = pd.Series(preds[:,0],\
+                        index = model.validation[model.length:].index)
+        
+            val_mae_og = (preds - model.validation[model.length:]).abs()\
+                         .mean()
+            
+            record = pd.DataFrame(best_dict).iloc[:1] 
+            record['val_mae_og'] = val_mae_og
+            
+            #append score
+            scores.append(val_mae_og)
+            records = records.append(record)
+            
+        #get param value that performed the best
+        best_score = min(scores)
+        best_dict[key][0] = best_dict[key][1][scores.index(best_score)]
+        
+    return records, best_dict
+    
+
+
 # =============================================================================
 # EXECUTE
 # =============================================================================
@@ -303,13 +374,18 @@ if __name__ =='__main__':
     test_data = df['temp'].iloc[-7:]
 
 
-    length = [30, 90, 180]
+    length = [15, 30, 60]
     layers_num = [1, 2]
     layers_type = ['LSTM']
     units = [20, 40, 80] 
-    g_filt = [1, 1.5, 2, 2.5]
+    g_filt = [0.5, 0.75, 1.0, 1.25]
     
     model_name = 'temp_model.h5'
     
-    grid_table = gridTableGen(length, layers_num, layers_type, units, g_filt)
-    results = gridSearch(grid_table, temp)
+    #grid_table = gridTableGen(length, layers_num, layers_type, units, g_filt)
+    #results = gridSearch(grid_table, temp)
+    
+    records, best_dict = fastSearch(temp, length, layers_num, layers_type, units, g_filt, model_name='test.h5', best_dict=None)
+    records2, best_dict2 = fastSearch(temp, length, layers_num, layers_type, units, g_filt, model_name='test.h5', best_dict=best_dict)
+    
+    records_all = pd.concat([records,records2])
