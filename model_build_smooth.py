@@ -154,28 +154,20 @@ class BuildModel():
         assert len(series) >= self.length,\
             "series must be at least {} days".format(self.length)
             
-        series_cut = series.iloc[-self.length:]
-        
-        #scale inputs to what model is expecting    
-        series_scaled = \
-            self.scaler.transform(series_cut.values.reshape(-1,1))
+        series_cut = series.iloc[-self.length:].values.reshape(-1,1)
             
         #predict ahead by appending predictions and removing first values
-        pred_series = series_scaled.reshape(1, self.length, self.n_features)
+        pred_series = series_cut.reshape(1, self.length, self.n_features)
+
         predictions = []
         
         for i in range(days):
             pred = self.model.predict(pred_series)
             pred_series = np.append(pred_series[:,1:,:], [pred], axis=1)
             predictions.append(pred)
-            
-        #inverse scale back to original units
-        predictions = np.array(predictions)
-        predictions = self.scaler.inverse_transform(\
-                           predictions.reshape(days, self.n_features))\
-                          .round(1)
-        
+                    
         #convert to pandas series
+        predictions = np.array(predictions)
         predictions = pd.Series(predictions.reshape(days))
         predictions.index = self.validation.index[-days:] +\
                                  dt.timedelta(days=days)
