@@ -169,7 +169,7 @@ class BuildModel():
         #convert to pandas series
         predictions = np.array(predictions)
         predictions = pd.Series(predictions.reshape(days))
-        predictions.index = self.validation.index[-days:] +\
+        predictions.index = series.index[-days:] +\
                                  dt.timedelta(days=days)
             
         return predictions
