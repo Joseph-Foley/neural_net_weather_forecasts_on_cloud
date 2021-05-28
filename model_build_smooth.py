@@ -147,7 +147,7 @@ class BuildModel():
             "sorry, function not yet available for multi step models"
         
         #use end of the validation set to project forward if no series given
-        if series == None:
+        if series is None:
             series = self.validation
         
         #get end of the series to plug into the model
