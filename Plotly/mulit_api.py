@@ -99,7 +99,7 @@ colors = {'background': '#111111', 'text': '#7FDBFF'}
 window_style = {'backgroundColor': colors['background'],
                'width':'50%','display':'inline-block'}
 
-#model_dict = loadModels()
+model_dict = loadModels()
 
 app.layout =\
 html.Div(children=[
@@ -149,7 +149,7 @@ def updateGraphs(n):#, model_dict):
             
     preds[preds < 0] = 0
     
-    #append first pred to hist for continuous line chart
+    #append first pred to hist for continuous line chart.
     df = df.append(preds.iloc[:1])
     
     
