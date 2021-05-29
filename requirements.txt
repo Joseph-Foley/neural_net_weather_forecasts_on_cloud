@@ -6,3 +6,4 @@ pandas
 matplotlib
 plotly==4.14.3
 dash
+gunicorn
