@@ -1,5 +1,5 @@
 requests
-tensorflow==2.3.0
+tensorflow
 numpy
 scipy
 pandas
