@@ -19,15 +19,13 @@ import os
 import plotly.offline as pyo
 import plotly.graph_objs as go
 
-import sys
-sys.path.append('..')
 from model_build_smooth import BuildModel
 
 
 def getData():
     """API import. Return last 30 days of weather in a DataFrame"""
     #load API key
-    with open('../api_key.txt') as doc:
+    with open('api_key.txt') as doc:
         api_key = doc.read()
     
     #form url
@@ -56,8 +54,8 @@ def getData():
 def loadModels():
     """Instantiates model class and then loads h5 model"""
     #file names
-    files = os.listdir('../Colab Models')
-    files = ['../Colab Models/' + file for file in files]
+    files = os.listdir('Colab Models')
+    files = ['Colab Models/' + file for file in files]
     
     #put temperature first
     files[0] , files[2] = files[2] , files[0]
