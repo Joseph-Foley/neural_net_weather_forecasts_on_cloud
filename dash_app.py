@@ -91,6 +91,7 @@ def plotlyData(name: str, hist, fc,):
 
 #DASH
 app = dash.Dash()
+server = app.server
 
 colors = {'background': '#111111', 'text': '#7FDBFF'}
 
