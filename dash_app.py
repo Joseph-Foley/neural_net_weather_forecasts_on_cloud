@@ -171,4 +171,4 @@ def updateGraphs(n):#, model_dict):
 
 if __name__ == '__main__':
     #model_dict = loadModels()
-    app.run_server(debug=True, port=8056)
+    app.run_server()
