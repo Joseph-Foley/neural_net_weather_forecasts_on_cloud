@@ -24,16 +24,15 @@ from model_build_smooth import BuildModel
 
 def getData():
     """API import. Return last 30 days of weather in a DataFrame"""
-    #load API key
-    with open('api_key.txt') as doc:
-        api_key = doc.read()
+    #load entrant
+    entrant = 'VFJ5W4L3FNJLNDEMWN6JZSEWB'
     
     #form url
     url = ''.join(['https://weather.visualcrossing.com/',
                    'VisualCrossingWebServices/rest/services/timeline/',
                    'London%2C%20ENG%2C%20GB/last30days?unitGroup=uk&key={}',
                    '&include=obs'])\
-                   .format(api_key)
+                   .format(entrant)
                    
     #make request
     req = requests.get(url)
