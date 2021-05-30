@@ -1,6 +1,6 @@
 requests
 tensorflow-cpu
-numpy=1.19.5
+numpy==1.19.5
 scipy
 pandas
 matplotlib
