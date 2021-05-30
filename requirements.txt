@@ -1,5 +1,5 @@
 requests
-tensorflow
+tensorflow-cpu
 numpy
 scipy
 pandas
