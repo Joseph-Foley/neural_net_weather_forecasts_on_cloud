@@ -54,8 +54,8 @@ def getData():
 def loadModels():
     """Instantiates model class and then loads h5 model"""
     #file names
-    files = os.listdir('Colab Models')
-    files = ['Colab Models/' + file for file in files]
+    files = os.listdir('./Colab_Models')
+    files = ['./Colab_Models/' + file for file in files]
     
     #put temperature first
     files[0] , files[2] = files[2] , files[0]
