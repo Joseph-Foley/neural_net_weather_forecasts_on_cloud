@@ -68,8 +68,6 @@ flex_grid_col = {
   'justify-content':'space-between',
   'margin':'40px'}
 
-
-
 app.layout =\
 html.Div(children=[
     html.Div(children=[
@@ -78,8 +76,8 @@ html.Div(children=[
                 style={'textAlign': 'center','color': colors['text']}),
         html.P(children='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec risus ligula, consectetur nec metus at, pellentesque dapibus turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In libero nibh, volutpat ut mattis semper, suscipit sodales arcu. Vestibulum tempus porta ex ac sodales. Sed maximus velit risus, quis scelerisque lorem porta eget. Curabitur eu nulla sem. Duis et ullamcorper risus.',
                style={'textAlign': 'left','color': colors['text']})
-        ], style={'margin':'20px 40px',
-                  'padding':'20px',
+        ], style={'margin':'40px 40px 20px 40px',
+                  'padding':'20px 60px',
                   'border-color':'#1e1e1e',
                   'border-width':'1px',
                   'border-style':'solid'
