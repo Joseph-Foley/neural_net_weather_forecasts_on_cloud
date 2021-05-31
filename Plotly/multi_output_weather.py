@@ -41,15 +41,49 @@ def plotlyData(dub: list, name: str):
     
     trace1 = go.Scatter(x = dub[0].index,
                         y = dub[0].values,
-                        mode = 'lines+markers',
-                        name = name + '_hist')
-    
+                        name = name + '_hist',
+                        mode = 'lines+markers+text',
+                        marker = dict(color = 'rgba(0,128,0, 1)', size=10, symbol=1,
+                                      line = {'width':1}),
+                        line = dict(width=3),
+                        text=dub[0].values,
+                        textposition="top center",
+                        texttemplate='%{text:.0f}',
+                        textfont_size=12)
+                        
     trace2 = go.Scatter(x = dub[1].index,
                         y = dub[1].values,
-                        mode = 'lines+markers',
-                        name = name + '_fc')
+                        name = name + '_fc',
+                        mode = 'lines+markers+text',
+                        marker = dict(color = 'rgba(0,0,255, 0.8)', size=15, symbol=5,
+                                      line = {'width':1}),
+                        line = dict(width=2, dash='longdash'),
+                        text=dub[1].values,
+                        textposition="top center",
+                        texttemplate='%{text:.0f}',
+                        textfont_size=12)
     
     return [trace1, trace2]
+
+def plotlyLayout(title, y_label):
+    layout = go.Layout(
+    title = {'text':title,
+             'x':0.5},
+    xaxis= {'title':'Date',
+            'showgrid':True,
+           'gridwidth':1,
+           'gridcolor':'rgba(0,0,0,0.05)'},
+    yaxis={'title':y_label,
+           'showgrid':True,
+           'gridwidth':1.5,
+           'gridcolor':'rgba(0,0,0,0.15)'},
+    legend={'x':0.025, 'y':0.95,
+            'bgcolor':'rgba(0,0,0,0)',
+            'borderwidth':1.5},
+     plot_bgcolor='rgba(227,248,251,0)'
+     )
+    
+    return layout
 
 #DASH
 app = dash.Dash()
@@ -122,16 +156,20 @@ def updateGraphs(n):
     weather = getSeries()
     
     fig1 = go.Figure(
-        data = plotlyData(dub=weather[0:2], name='temp'))
+        data = plotlyData(dub=weather[0:2], name='temp'),
+        layout = plotlyLayout('Temp C', 'Temp C'))
     
     fig2 = go.Figure(
-        data = plotlyData(dub=weather[2:4], name='precip'))
+        data = plotlyData(dub=weather[2:4], name='precip'),
+        layout = plotlyLayout('Precip', 'Precip'))
         
     fig3 = go.Figure(
-        data = plotlyData(dub=weather[4:6], name='humidity')) 
+        data = plotlyData(dub=weather[4:6], name='humidity'),
+        layout = plotlyLayout('Humidity', 'Humidity')) 
             
     fig4 = go.Figure(
-        data = plotlyData(dub=weather[6:], name='windspeed')) 
+        data = plotlyData(dub=weather[6:], name='windspeed'),
+        layout = plotlyLayout('windspeed', 'windspeed')) 
     
     return fig1, fig2, fig3, fig4
 
