@@ -54,28 +54,59 @@ def plotlyData(dub: list, name: str):
 #DASH
 app = dash.Dash()
 
-colors = {'background': '#111111', 'text': '#7FDBFF'}
+colors = {'background': '#fff', 'text': '#1E1E1E'}
 
 window_style = {'backgroundColor': colors['background'],
-               'width':'50%','display':'inline-block'}
+               'width':'49%',
+               'display':'inline-block',
+               'border-color':'#1e1e1e',
+               'border-width':'1px',
+               'border-style':'solid'}
+
+flex_grid_col = {
+  'display':'flex',
+  'justify-content':'space-between',
+  'margin':'40px'}
+
+
 
 app.layout =\
 html.Div(children=[
-    html.H1(children='Hello Dash',\
-            style={'textAlign': 'center','color': colors['text']}),
+    html.Div(children=[
+        
+        html.H1(children='Hello Dash',
+                style={'textAlign': 'center','color': colors['text']}),
+        html.P(children='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec risus ligula, consectetur nec metus at, pellentesque dapibus turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In libero nibh, volutpat ut mattis semper, suscipit sodales arcu. Vestibulum tempus porta ex ac sodales. Sed maximus velit risus, quis scelerisque lorem porta eget. Curabitur eu nulla sem. Duis et ullamcorper risus.',
+               style={'textAlign': 'left','color': colors['text']})
+        ], style={'margin':'20px 40px',
+                  'padding':'20px',
+                  'border-color':'#1e1e1e',
+                  'border-width':'1px',
+                  'border-style':'solid'
+        }),
+    html.Div(children=[
 
-    html.Div(dcc.Graph(id='graph1'), 
+        html.Div(dcc.Graph(id='graph1'), 
             style=window_style),
 
-    html.Div(dcc.Graph(id='graph2'), 
+        html.Div(dcc.Graph(id='graph2'), 
+            style=window_style)],
+        
+    style=flex_grid_col
+    ),
+        
+    html.Div(children=[
+        
+        html.Div(dcc.Graph(id='graph3'), 
             style=window_style),
 
-    html.Div(dcc.Graph(id='graph3'), 
-            style=window_style),
-
-    html.Div(dcc.Graph(id='graph4'), 
-            style=window_style),
-
+        html.Div(dcc.Graph(id='graph4'), 
+            style=window_style)],
+        
+    style=flex_grid_col
+    ),
+        
+        
     dcc.Interval(
        id='interval-component',
        interval=1*60*60*1000, # 1hr * 60mins * 60secs * 1000milisecs
@@ -99,10 +130,10 @@ def updateGraphs(n):
         data = plotlyData(dub=weather[2:4], name='precip'))
         
     fig3 = go.Figure(
-        data = plotlyData(dub=weather[4:6], name='humidity'))
+        data = plotlyData(dub=weather[4:6], name='humidity')) 
             
     fig4 = go.Figure(
-        data = plotlyData(dub=weather[6:], name='windspeed'))
+        data = plotlyData(dub=weather[6:], name='windspeed')) 
     
     return fig1, fig2, fig3, fig4
 
