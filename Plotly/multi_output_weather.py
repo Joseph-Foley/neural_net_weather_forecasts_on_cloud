@@ -99,22 +99,24 @@ window_style = {'backgroundColor': colors['background'],
 
 flex_grid_col = {
   'display':'flex',
-  'justify-content':'space-between',
-  'margin':'40px'}
+  'justify-content':'space-evenly',
+  'margin':'15px 26px'}
 
 app.layout =\
 html.Div(children=[
     html.Div(children=[
         
         html.H1(children='Hello Dash',
-                style={'textAlign': 'center','color': colors['text']}),
+                style={'textAlign': 'center','color': colors['text'],
+                      'font-family':'sans-serif'}),
         html.P(children='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec risus ligula, consectetur nec metus at, pellentesque dapibus turpis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. In libero nibh, volutpat ut mattis semper, suscipit sodales arcu. Vestibulum tempus porta ex ac sodales. Sed maximus velit risus, quis scelerisque lorem porta eget. Curabitur eu nulla sem. Duis et ullamcorper risus.',
-               style={'textAlign': 'left','color': colors['text']})
-        ], style={'margin':'40px 40px 20px 40px',
+               style={'textAlign': 'left','color': colors['text'],
+                      'font-family':'sans-serif'})
+        ], style={'margin':'15px 40px',#' 20px 40px',
                   'padding':'20px 60px',
-                  'border-color':'#1e1e1e',
-                  'border-width':'1px',
-                  'border-style':'solid'
+                  #'border-color':'#1e1e1e',
+                  #'border-width':'1px',
+                  #'border-style':'solid'
         }),
     html.Div(children=[
 
