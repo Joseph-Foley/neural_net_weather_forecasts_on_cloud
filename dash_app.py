@@ -24,7 +24,7 @@ from model_build_smooth import BuildModel
 
 def getData():
     """API import. Return last 30 days of weather in a DataFrame"""
-    #load entrant
+    #load entrant (for Heroku)
     entrant = 'VFJ5W4L3FNJLNDEMWN6JZSEWB'
     
     #form url
