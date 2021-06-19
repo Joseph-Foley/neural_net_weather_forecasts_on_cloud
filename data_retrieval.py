@@ -11,12 +11,7 @@ import pandas as pd
 import datetime as dt
 
 # =============================================================================
-# FUNCTIONS
-# =============================================================================
-
-
-# =============================================================================
-# PROCESS
+# EXECUTE
 # =============================================================================
 #load API key
 with open('api_key.txt') as doc:
@@ -36,11 +31,15 @@ except:
 
 #get data (conform to api extraction limitations)
 for i in range(ITERATIONS):
-    end_date_chunk = dt.datetime.strptime(END_DATE,'%Y-%m-%d') - dt.timedelta(days= (i * DAY_CHUNK) + 1)
+    end_date_chunk = dt.datetime.strptime(END_DATE,'%Y-%m-%d') -\
+                     dt.timedelta(days= (i * DAY_CHUNK) + 1)
+                     
     end_date_chunk = dt.datetime.strftime(end_date_chunk,'%Y-%m-%d') 
     
     
-    start_date = dt.datetime.strptime(END_DATE,'%Y-%m-%d') - dt.timedelta(days=((i + 1) * DAY_CHUNK))
+    start_date = dt.datetime.strptime(END_DATE,'%Y-%m-%d') -\
+                 dt.timedelta(days=((i + 1) * DAY_CHUNK))
+                 
     start_date = dt.datetime.strftime(start_date,'%Y-%m-%d') 
     
     #url

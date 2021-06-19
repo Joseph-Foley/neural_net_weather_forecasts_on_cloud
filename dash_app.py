@@ -240,19 +240,19 @@ def updateGraphs(n):
                             'Temperature \N{DEGREE SIGN}C'))
     
     fig1 = go.Figure(
-        data = plotlyData(name=metrics[1],\
+        data=plotlyData(name=metrics[1],\
                           hist=df[metrics[1]].iloc[-8:], fc=preds[metrics[1]]),
         layout=plotlyLayout('Precipitation (mm)',\
                             'Precipitation (mm)'))
         
     fig2 = go.Figure(
-        data = plotlyData(name=metrics[2],\
+        data=plotlyData(name=metrics[2],\
                           hist=df[metrics[2]].iloc[-8:], fc=preds[metrics[2]]),
         layout=plotlyLayout('Humidity (%)',\
                             'Humidity (%)'))
             
     fig3 = go.Figure(
-        data = plotlyData(name=metrics[3],\
+        data=plotlyData(name=metrics[3],\
                           hist=df[metrics[3]].iloc[-8:], fc=preds[metrics[3]]),
         layout=plotlyLayout('Windspeed (mph)',\
                             'Windspeed (mph)'))
