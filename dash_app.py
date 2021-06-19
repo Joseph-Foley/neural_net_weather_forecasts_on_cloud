@@ -73,20 +73,56 @@ def loadModels():
         
     return model_dict
 
-def plotlyData(name: str, hist, fc,):
+def plotlyData(name: str, hist, fc):
     """plots history and forecast"""
     
-    trace1 = go.Scatter(x = hist.index,
-                        y = hist.values,
-                        mode = 'lines+markers',
-                        name = name + '_hist')
+    trace1 = go.Scatter(x=hist.index,
+                        y=hist.values,
+                        name='History',
+                        mode='lines+markers+text',
+                        marker=dict(color='rgba(0,128,0, 1)', size=10, symbol=1,
+                                    line={'width':1}),
+                        line=dict(width=3),
+                        text=hist.values,
+                        textposition="top center",
+                        texttemplate='%{text:.0f}',
+                        textfont_size=12)
     
-    trace2 = go.Scatter(x = fc.index,
-                        y = fc.values,
-                        mode = 'lines+markers',
-                        name = name + '_fc')
+    trace2 = go.Scatter(x=fc.index,
+                        y=fc.values,
+                        name='Forecast',
+                        mode='lines+markers+text',
+                        marker=dict(color = 'rgba(0,0,255, 0.8)', size=15, symbol=5,
+                                    line = {'width':1}),
+                        line=dict(width=2, dash='longdash'),
+                        text=fc.values,
+                        textposition="top center",
+                        texttemplate='%{text:.0f}',
+                        textfont_size=12)
     
     return [trace1, trace2]
+
+def plotlyLayout(title, y_label):
+    
+    layout = go.Layout(
+        
+    title={'text':title,
+             'x':0.5},
+    xaxis={'title':'Date',
+            'showgrid':True,
+           'gridwidth':1,
+           'gridcolor':'rgba(0,0,0,0.05)'},
+    yaxis={'title':y_label,
+           'showgrid':True,
+           'gridwidth':1.5,
+           'gridcolor':'rgba(0,0,0,0.15)'},
+    legend={'x':0.025, 'y':0.95,
+            'bgcolor':'rgba(255,255,255,1)',
+            'borderwidth':0.5},
+     plot_bgcolor='rgba(227,248,251,0)'
+     
+                      )
+    return layout
 
 #DASH
 app = dash.Dash()
@@ -129,7 +165,7 @@ style={'backgroundColor': colors['background']})
                Output('graph3','figure'),
                Output('graph4','figure')],
           [Input('interval-component', 'n_intervals')])
-def updateGraphs(n):#, model_dict):
+def updateGraphs(n):
     #refresh data from the api
     df = getData()
     
@@ -152,20 +188,28 @@ def updateGraphs(n):#, model_dict):
     
     
     fig0 = go.Figure(
-        data = plotlyData(name=metrics[0],\
-                          hist=df[metrics[0]].iloc[-8:], fc=preds[metrics[0]]))
+        data=plotlyData(name=metrics[0],\
+                        hist=df[metrics[0]].iloc[-8:], fc=preds[metrics[0]]),
+        layout=plotlyLayout('Temperature \N{DEGREE SIGN}C',\
+                            'Temperature \N{DEGREE SIGN}C'))
     
     fig1 = go.Figure(
         data = plotlyData(name=metrics[1],\
-                          hist=df[metrics[1]].iloc[-8:], fc=preds[metrics[1]]))
+                          hist=df[metrics[1]].iloc[-8:], fc=preds[metrics[1]]),
+        layout=plotlyLayout('Precipitation (mm)',\
+                            'Precipitation (mm)'))
         
     fig2 = go.Figure(
         data = plotlyData(name=metrics[2],\
-                          hist=df[metrics[2]].iloc[-8:], fc=preds[metrics[2]]))
+                          hist=df[metrics[2]].iloc[-8:], fc=preds[metrics[2]]),
+        layout=plotlyLayout('Humidity (%)',\
+                            'Humidity (%)'))
             
     fig3 = go.Figure(
         data = plotlyData(name=metrics[3],\
-                          hist=df[metrics[3]].iloc[-8:], fc=preds[metrics[3]]))
+                          hist=df[metrics[3]].iloc[-8:], fc=preds[metrics[3]]),
+        layout=plotlyLayout('Windspeed (mph)',\
+                            'Windspeed (mph)'))
     
     return fig0, fig1, fig2, fig3
 
