@@ -12,8 +12,6 @@ import datetime as dt
 import matplotlib.pyplot as plt
 import time
 
-#from sklearn.preprocessing import StandardScaler, MinMaxScaler#, Normalizer
-
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, LSTM, GRU, Dense, Dropout, LayerNormalization, Bidirectional #BatchNormalization - NO

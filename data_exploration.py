@@ -81,7 +81,7 @@ df = df.drop(cols_drop, axis=1)
 create_report(df, title='Weather_data_EDA')
 
 """
-tempmax ios skewed unlike other temps
+tempmax is skewed unlike other temps
 precip shows that there is no rain one in three days. this is confirmed by the conditions columns. Love London!
 winddir showing that the prevaling wind comes from the Atlantic as expected.
 cloudcover showing that the will always be some clouds hanging about. Rare for it to be over 30% though.
