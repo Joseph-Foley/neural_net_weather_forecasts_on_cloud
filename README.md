@@ -17,7 +17,8 @@ If you want to follow along with the analysis & modelling, please go to the “N
 
 Otherwise the main event is in the script **dash_app.py** that can be seen in the primary directory. This script calls the weather API for historical data. It then imports the models & classes created in the analysis segment to provide a 7 day forecast of temperature, humidity, precipitation and wind speed. The historical data and forecasts are then passed into a dashboard made using the Dash & Plotly libraries. This can be hosted locally or deployed on a cloud service. 
 
-This repo is currently being hosted on Heroku cloud service. The resulting dashboard can be viewed here: 
+This repo is currently being hosted on Heroku cloud service. The resulting dashboard can be viewed in the link below (it's on the free service so please be patient).
+
 [nn-cloud.herokuapp.com](https://nn-cloud.herokuapp.com/ "Title")
 
 ## Results
