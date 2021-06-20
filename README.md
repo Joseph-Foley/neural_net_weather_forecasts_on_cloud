@@ -3,9 +3,9 @@
 ## Contents
 
 1.	[Intro](#Intro)
-2.	[Repo Structure])(#Repo Structure)
+2.	[Repo Structure])(#"Repo Structure")
 3.	[Results](#Results)
-4.	[Further Improvements](#Further Improvements)
+4.	[Further Improvements](#"Further Improvements")
 
 ## Intro
 This Repo shows how to take an API feed of weather data and train a recurrent neural network in order to provide a weather forecast. Predictions will be deployed and visualised on heroku cloud platform. Forecasts update daily.
@@ -17,13 +17,13 @@ If you want to follow along with the analysis & modelling, please go to the “N
 
 Otherwise the main event is in the script **dash_app.py** that can be seen in the primary directory. This script calls the weather API for historical data. It then imports the models & classes created in the analysis segment to provide a 7 day forecast of temperature, humidity, precipitation and wind speed. The historical data and forecasts are then passed into a dashboard made using the Dash & Plotly libraries. This can be hosted locally or deployed on a cloud service. 
 
-This repo is currently being hosted on Heroku cloud service. The resulting dashboard can be viewed here: [link](nn-cloud.herokuapp.com "Title")
+This repo is currently being hosted on Heroku cloud service. The resulting dashboard can be viewed here: [nn-cloud.herokuapp.com](nn-cloud.herokuapp.com "Title")
 
 ## Results
 The baseline model of projecting the last observation forward had a **mean absolute error of 1.7** (temperature – degrees centigrade). The final model had an error of **0.7**.
 
 The weather forecasts can be viewed at the link above and should resemble the image below.
-![Alt](Plotly/ nn-cloud.png "Title")
+![Alt](Plotly/nn-cloud.png "Title")
 
 ## Further Improvements
 - Model max temperature instead of temp. It’s more typical of what we perceive when thinking about how hot or cold the day will be.
