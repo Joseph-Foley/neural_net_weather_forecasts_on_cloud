@@ -24,7 +24,7 @@ This repo is currently being hosted on Heroku cloud service. The resulting dashb
 The baseline model of projecting the last observation forward had a **mean absolute error of 1.7** (temperature – degrees centigrade). The final model had an error of **0.7**.
 
 The weather forecasts can be viewed at the link above and should resemble the image below.
-![](Plotly/nn-cloud.png?raw=true)
+![](Plotly/nn-cloud.PNG?raw=true)
 
 ## Further Improvements
 - Model max temperature instead of temp. It’s more typical of what we perceive when thinking about how hot or cold the day will be.
